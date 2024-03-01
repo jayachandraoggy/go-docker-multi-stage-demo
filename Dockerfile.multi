@@ -1,0 +1,18 @@
+FROM golang:alpine AS stage1
+LABEL authors="jayachandra"
+
+WORKDIR /app
+COPY . .
+RUN go mod download
+RUN go build -o goapp .
+EXPOSE 3000
+
+## stage2
+FROM alpine
+
+WORKDIR /
+COPY --from=stage1 /app/goapp /goapp
+COPY --from=stage1 /app/.env /.env
+EXPOSE 3000
+
+CMD [ "/goapp" ]
